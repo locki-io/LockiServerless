@@ -10,13 +10,18 @@
     "unit": "jest",
     "lint": "eslint '*.ts' --quiet --fix",
     "compile": "tsc",
-    "test": "npm run compile && npm run unit"
+    "test": "npm run compile && npm run unit",
+    "start": "sam local start-api -p 5000 --force-image-build --profile lockidev",
+    "configure:profile": "aws configure --profile lockidev"
   },
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.421.0",
+    "@aws-sdk/lib-dynamodb": "^3.421.0",
     "@multiversx/sdk-wallet": "^4.2.0",
     "axios": "^1.5.1",
     "bech32": "^2.0.0",
-    "esbuild": "^0.14.14"
+    "esbuild": "^0.14.14",
+    "generate-api-key": "^1.0.2"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.92",
