@@ -82,6 +82,7 @@ export class NativeAuthServer {
 
   async validate(accessToken: string): Promise<NativeAuthValidateResult> {
     const decoded = this.decode(accessToken);
+    console.log('decoded.origin', decoded.origin);
 
     if (decoded.ttl > this.config.maxExpirySeconds) {
       throw new NativeAuthInvalidTokenTtlError(decoded.ttl, this.config.maxExpirySeconds);

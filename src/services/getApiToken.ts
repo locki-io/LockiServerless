@@ -17,7 +17,12 @@ export const getApiTokenService = async (event: APIGatewayProxyEvent) => {
   if (nativeAuthToken) {
     try {
       const defaultConfig: NativeAuthServerConfig = {
-        acceptedOrigins: ['https://test.explorer.itheum.io', 'https://devnet-api.multiversx.com'],
+        acceptedOrigins: [
+          'https://test.explorer.itheum.io',
+          'https://devnet-api.multiversx.com',
+          'localhost',
+          'https://app.locki.io',
+        ],
         maxExpirySeconds: 86400,
         apiUrl: 'https://devnet-api.multiversx.com',
       };
