@@ -39,7 +39,7 @@ export const getApiTokenService = async (event: APIGatewayProxyEvent) => {
       const existingUser = await getExistingItem(dbClient, result.address, result.origin);
 
       if (existingUser) {
-        return existingUser?.apiKey || '';
+        return { apiKey: existingUser?.apiKey || '' };
       } else {
         const newApiKey = generateApiKey();
         await dbClient.putCommand({
@@ -49,7 +49,7 @@ export const getApiTokenService = async (event: APIGatewayProxyEvent) => {
           apiKey: newApiKey,
         });
 
-        return newApiKey;
+        return { apiKey: newApiKey };
       }
     } catch (error) {
       console.log('error', error);

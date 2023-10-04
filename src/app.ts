@@ -1,10 +1,20 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { getApiTokenService } from './services';
+import { getApiTokenService, getNativeAuthTokenService } from './services';
 
 export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   console.info('event', JSON.stringify(event));
   try {
-    const apiKey = await getApiTokenService(event);
+    let response = {};
+    switch (event?.path) {
+      case '/apiKey':
+        response = await getApiTokenService(event);
+        break;
+      case '/token':
+        response = await getNativeAuthTokenService(event);
+        break;
+      default:
+        break;
+    }
 
     return {
       statusCode: 200,
@@ -13,9 +23,7 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
         'Access-Control-Allow-Origin': '*', // Allow from anywhere
         'Access-Control-Allow-Methods': 'GET', // Allow only GET request
       },
-      body: JSON.stringify({
-        apiKey,
-      }),
+      body: JSON.stringify(response),
     };
   } catch (err: any) {
     console.log('err', JSON.stringify(err));
