@@ -21,6 +21,7 @@ export const getApiTokenService = async (event: APIGatewayProxyEvent) => {
           'https://test.explorer.itheum.io',
           'https://devnet-api.multiversx.com',
           'localhost',
+          'http://localhost:3000',
           'https://app.locki.io',
         ],
         maxExpirySeconds: 86400,
