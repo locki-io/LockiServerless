@@ -1,3 +1,4 @@
+export * from './native.auth.client';
 export * from './native.auth.server';
 export * from './native.auth.signature';
 export * from './native.auth.cache.interface';

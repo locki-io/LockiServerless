@@ -9,7 +9,7 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
       case '/apiKey':
         response = await getApiTokenService(event);
         break;
-      case '/token':
+      case '/identity':
         response = await getNativeAuthTokenService(event);
         break;
       default:

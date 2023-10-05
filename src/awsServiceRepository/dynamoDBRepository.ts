@@ -1,5 +1,5 @@
 import { DynamoDB } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocument, GetCommand, PutCommand } from '@aws-sdk/lib-dynamodb';
+import { DynamoDBDocument, GetCommand, PutCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
 
 export class DynamoDBRepository {
   public readonly tableName: string;
@@ -27,6 +27,20 @@ export class DynamoDBRepository {
 
     const data = await this.ddbDocClient.send(new GetCommand(params));
     return data.Item;
+  }
+
+  async queryByIndexCommand(indexName: string, indexKey: string, indexValue: any) {
+    const params = {
+      TableName: this.tableName,
+      IndexName: indexName,
+      KeyConditionExpression: `${indexKey} = :${indexKey}`,
+      ExpressionAttributeValues: {
+        [`:${indexKey}`]: indexValue,
+      },
+    };
+
+    const data = await this.ddbDocClient.send(new QueryCommand(params));
+    return data?.Items || [];
   }
 
   async putCommand(item: any, options?: any) {

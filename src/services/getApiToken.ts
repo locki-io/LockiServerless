@@ -4,10 +4,12 @@ import generateApiKey from 'generate-api-key';
 import { NativeAuthServer, NativeAuthServerConfig } from '../nativeAuth';
 import { DynamoDBRepository } from '../awsServiceRepository';
 
+const dbClient = new DynamoDBRepository(process.env.LOCKI_USERS_TABLE || '');
+
 export const getExistingItem = async (ddbRepository: DynamoDBRepository, address: string, origin: string) => {
   const item = await ddbRepository.sendCommand({ address, origin }, {});
 
-  return item;
+  return item?.Items;
 };
 
 export const getApiTokenService = async (event: APIGatewayProxyEvent) => {
@@ -33,8 +35,6 @@ export const getApiTokenService = async (event: APIGatewayProxyEvent) => {
       await server.validate(nativeAuthToken);
 
       const result = server.decode(nativeAuthToken);
-
-      const dbClient = new DynamoDBRepository(process.env.LOCKI_USERS_TABLE || '');
 
       const existingUser = await getExistingItem(dbClient, result.address, result.origin);
 

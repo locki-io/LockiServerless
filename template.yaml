@@ -22,6 +22,7 @@ Resources:
       CodeUri: src/
       Handler: app.lambdaHandler
       Runtime: nodejs18.x
+      MemorySize: 256
       Architectures:
       - x86_64
       Policies:
@@ -56,6 +57,7 @@ Resources:
       CodeUri: src/
       Handler: app.lambdaHandler
       Runtime: nodejs18.x
+      MemorySize: 256
       Architectures:
       - x86_64
       Policies:
@@ -70,7 +72,7 @@ Resources:
         GetApiToken:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
-            Path: /token
+            Path: /identity
             Method: get
     Metadata: # Manage esbuild properties
       BuildMethod: esbuild
@@ -92,6 +94,8 @@ Resources:
           AttributeType: "S"
         - AttributeName: "origin"
           AttributeType: "S"
+        - AttributeName: "apiKey"
+          AttributeType: "S"
       KeySchema:
         - AttributeName: "address"
           KeyType: "HASH"
@@ -100,6 +104,16 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 2
         WriteCapacityUnits: 2
+      GlobalSecondaryIndexes:
+        - IndexName: "apiKey_ix"
+          KeySchema:
+          - AttributeName: "apiKey"
+            KeyType: "HASH"
+          Projection:
+            ProjectionType: "ALL"
+          ProvisionedThroughput:
+            ReadCapacityUnits: 2
+            WriteCapacityUnits: 2
       TableName: "locki-users"
 
   ApplicationResourceGroup:
