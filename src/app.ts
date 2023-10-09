@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { getApiTokenService, getNativeAuthTokenService } from './services';
+import { getApiTokenService, getNativeAuthTokenService, getDataNftsService } from './services';
 
 export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   console.info('event', JSON.stringify(event));
@@ -11,6 +11,9 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
         break;
       case '/identity':
         response = await getNativeAuthTokenService(event);
+        break;
+      case '/datanfts':
+        response = await getDataNftsService(event);
         break;
       default:
         break;

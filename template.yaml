@@ -33,6 +33,7 @@ Resources:
         Variables:
           # Make table name accessible as environment variable from function code during execution
           LOCKI_USERS_TABLE: "locki-users"
+          MUTLIVERSEX_API_URL: "https://devnet-api.multiversx.com"
       Events:
         GetApiToken:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
@@ -69,10 +70,47 @@ Resources:
           # Make table name accessible as environment variable from function code during execution
           LOCKI_USERS_TABLE: "locki-users"
       Events:
-        GetApiToken:
+        GetNativeToken:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
             Path: /identity
+            Method: get
+    Metadata: # Manage esbuild properties
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: es2020
+        Sourcemap: true
+        EntryPoints:
+        - app.ts
+        External:
+        - "@aws-sdk/lib-dynamodb"
+        - "@aws-sdk/client-dynamodb"
+  
+  GetDataNfts:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: app.lambdaHandler
+      Runtime: nodejs18.x
+      MemorySize: 256
+      Architectures:
+      - x86_64
+      Policies:
+        # Give Create/Read/Update/Delete Permissions to the SampleTable
+      - DynamoDBCrudPolicy:
+          TableName: "locki-users"
+      Environment:
+        Variables:
+          # Make table name accessible as environment variable from function code during execution
+          LOCKI_USERS_TABLE: "locki-users"
+          MUTLIVERSEX_API_URL: "https://devnet-api.multiversx.com"
+          NFT_COLLECTION: "DATANFTFT4-3ba099"
+      Events:
+        GetDataNfts:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /datanfts
             Method: get
     Metadata: # Manage esbuild properties
       BuildMethod: esbuild

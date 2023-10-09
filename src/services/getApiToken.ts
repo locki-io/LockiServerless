@@ -25,9 +25,10 @@ export const getApiTokenService = async (event: APIGatewayProxyEvent) => {
           'localhost',
           'http://localhost:3000',
           'https://app.locki.io',
+          'https://app-nextjs-6tvy5nqnu-satish-nvrns-projects.vercel.app',
         ],
         maxExpirySeconds: 86400,
-        apiUrl: 'https://devnet-api.multiversx.com',
+        apiUrl: process.env.MUTLIVERSEX_API_URL,
       };
 
       const server = new NativeAuthServer(defaultConfig);
