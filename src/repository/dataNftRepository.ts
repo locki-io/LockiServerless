@@ -18,7 +18,6 @@ export function decodeNftAttributes(nft: NftType) {
   const decodedAttributes = new BinaryCodec()
     .decodeTopLevel(Buffer.from(nft.attributes, 'base64'), dataNftAttributes)
     .valueOf();
-  console.log('decodedAttributes', JSON.stringify(decodedAttributes));
 
   const dataNFT: DataNftMetadataType = {
     id: nft.identifier, // ID of NFT -> done
