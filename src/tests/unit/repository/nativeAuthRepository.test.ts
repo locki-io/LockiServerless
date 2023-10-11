@@ -17,7 +17,6 @@ describe('nativeAuthRepository', () => {
     const dbClient = new DynamoDBRepository('');
 
     const nativeAuthResponse = await NativeAuthRepository.getNativeAuthFromApiKey(apiKey, dbClient);
-    console.log('nativeAuthResponse', JSON.stringify(nativeAuthResponse));
     expect(nativeAuthResponse).toHaveProperty('expiry');
     expect(nativeAuthResponse).toHaveProperty('nativeAuthToken');
   });
