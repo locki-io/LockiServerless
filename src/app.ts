@@ -1,19 +1,19 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { getApiTokenService, getNativeAuthTokenService, getDataNftsService } from './services';
+import { validateNativeAuthTokenService, getDataNftsService, mintBlenderScripts } from './services';
 
 export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   console.info('event', JSON.stringify(event));
   try {
     let response = {};
     switch (event?.path) {
-      case '/apiKey':
-        response = await getApiTokenService(event);
-        break;
       case '/identity':
-        response = await getNativeAuthTokenService(event);
+        response = await validateNativeAuthTokenService(event);
         break;
       case '/datanfts':
         response = await getDataNftsService(event);
+        break;
+      case '/mintBlenderScripts':
+        response = await mintBlenderScripts(event);
         break;
       default:
         break;

@@ -1,10 +1,10 @@
 {
-  "name": "hello_world",
+  "name": "locki-services",
   "version": "1.0.0",
-  "description": "hello world sample for NodeJS",
+  "description": "Locki Services in NodeJs",
   "main": "app.js",
-  "repository": "https://github.com/awslabs/aws-sam-cli/tree/develop/samcli/local/init/templates/cookiecutter-aws-sam-hello-nodejs",
-  "author": "SAM CLI",
+  "repository": "https://github.com/locki-io/LockiServerless",
+  "author": "SATISH NVRN",
   "license": "MIT",
   "scripts": {
     "unit": "jest",
@@ -20,6 +20,7 @@
     "@itheum/sdk-mx-data-nft": "^2.1.4",
     "@multiversx/sdk-dapp": "^2.22.1",
     "@multiversx/sdk-wallet": "^4.2.0",
+    "aws-sdk": "^2.1528.0",
     "axios": "^1.5.1",
     "bech32": "^2.0.0",
     "esbuild": "^0.14.14",

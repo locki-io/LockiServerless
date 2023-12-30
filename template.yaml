@@ -16,42 +16,6 @@ Globals:
     Timeout: 120
 
 Resources:
-  GetApiToken:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
-    Properties:
-      CodeUri: src/
-      Handler: app.lambdaHandler
-      Runtime: nodejs18.x
-      MemorySize: 256
-      Architectures:
-      - x86_64
-      Policies:
-        # Give Create/Read/Update/Delete Permissions to the SampleTable
-      - DynamoDBCrudPolicy:
-          TableName: "locki-users"
-      Environment:
-        Variables:
-          # Make table name accessible as environment variable from function code during execution
-          LOCKI_USERS_TABLE: "locki-users"
-          MUTLIVERSEX_API_URL: "https://devnet-api.multiversx.com"
-      Events:
-        GetApiToken:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
-          Properties:
-            Path: /apiKey
-            Method: get
-    Metadata: # Manage esbuild properties
-      BuildMethod: esbuild
-      BuildProperties:
-        Minify: true
-        Target: es2020
-        Sourcemap: true
-        EntryPoints:
-        - app.ts
-        External:
-        - "@aws-sdk/lib-dynamodb"
-        - "@aws-sdk/client-dynamodb"
-
   GetNativeToken:
     Type: AWS::Serverless::Function
     Properties:
@@ -69,6 +33,7 @@ Resources:
         Variables:
           # Make table name accessible as environment variable from function code during execution
           LOCKI_USERS_TABLE: "locki-users"
+          MUTLIVERSEX_API_URL: "https://devnet-api.multiversx.com"
       Events:
         GetNativeToken:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
@@ -124,6 +89,42 @@ Resources:
         - "@aws-sdk/lib-dynamodb"
         - "@aws-sdk/client-dynamodb"
   
+  MintBlenderScripts:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: app.lambdaHandler
+      Runtime: nodejs18.x
+      MemorySize: 512
+      Architectures:
+      - x86_64
+      Policies:
+        # Give Create/Read/Update/Delete Permissions to the SampleTable
+      - DynamoDBCrudPolicy:
+          TableName: "locki-users"
+      # Environment:
+        # Variables:
+          # Make table name accessible as environment variable from function code during execution
+          # LOCKI_USERS_TABLE: "locki-users"
+          # MUTLIVERSEX_API_URL: "https://devnet-api.multiversx.com"
+          # NFT_COLLECTION: "DATANFTFT4-3ba099"
+      Events:
+        MintBlenderScripts:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /mintBlenderScripts
+            Method: post
+    Metadata: # Manage esbuild properties
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: es2020
+        Sourcemap: true
+        EntryPoints:
+        - app.ts
+        External:
+        - "@aws-sdk"
+  
   LockiUsers:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -171,12 +172,9 @@ Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
-  GetApiTokenApi:
+  GetNativeTokenApi:
     Description: API Gateway endpoint URL for Prod stage for Hello World function
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
-  GetApiTokenFunction:
+  GetNativeTokenFunction:
     Description: Hello World Lambda Function ARN
-    Value: !GetAtt GetApiToken.Arn
-  GetApiTokenFunctionIamRole:
-    Description: Implicit IAM Role created for Hello World function
-    Value: !GetAtt GetApiToken.Arn
+    Value: !GetAtt GetNativeToken.Arn
