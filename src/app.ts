@@ -2,7 +2,6 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { validateNativeAuthTokenService, getDataNftsService, mintBlenderScripts } from './services';
 
 export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  console.info('event', JSON.stringify(event));
   try {
     let response = {};
     switch (event?.path) {

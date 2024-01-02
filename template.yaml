@@ -102,12 +102,9 @@ Resources:
         # Give Create/Read/Update/Delete Permissions to the SampleTable
       - DynamoDBCrudPolicy:
           TableName: "locki-users"
-      # Environment:
-        # Variables:
-          # Make table name accessible as environment variable from function code during execution
-          # LOCKI_USERS_TABLE: "locki-users"
-          # MUTLIVERSEX_API_URL: "https://devnet-api.multiversx.com"
-          # NFT_COLLECTION: "DATANFTFT4-3ba099"
+      Environment:
+        Variables:
+          BLENDER_SCRIPTS_QUEUE: !GetAtt BlenderScriptsQueue.QueueUrl
       Events:
         MintBlenderScripts:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
@@ -154,6 +151,9 @@ Resources:
             ReadCapacityUnits: 2
             WriteCapacityUnits: 2
       TableName: "locki-users"
+  
+  BlenderScriptsQueue:
+    Type: AWS::SQS::Queue
 
   ApplicationResourceGroup:
     Type: AWS::ResourceGroups::Group

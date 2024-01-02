@@ -210,3 +210,4 @@ $RECYCLE.BIN/
 .yarn
 .yarnrc.yml
 .vscode
+local-env.json
