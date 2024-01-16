@@ -211,3 +211,4 @@ $RECYCLE.BIN/
 .yarnrc.yml
 .vscode
 local-env.json
+*.input.json
