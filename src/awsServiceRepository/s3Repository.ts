@@ -8,7 +8,7 @@ export class S3Repository {
   constructor(bucketName: string) {
     this.bucketName = bucketName;
 
-    this.s3 = new aws.S3({ apiVersion: '2006-03-01' });
+    this.s3 = new aws.S3({ apiVersion: '2006-03-01', region: 'eu-west-3' });
   }
 
   async uploadFileOnS3(fileData: string, fileName: string) {
