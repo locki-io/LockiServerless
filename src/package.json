@@ -13,7 +13,7 @@
     "test": "npm run compile && npm run unit",
     "start": "sam local start-api -p 5000 --force-image-build --profile lockidev --env-vars local-env.json",
     "configure:profile": "aws configure --profile lockidev",
-    "invoke:blp": "sam local invoke -e sqs.input.json BlenderScriptsProcessor --profile lockidev",
+    "invoke:blp": "sam local invoke -e sqs.input.json BlenderScriptsProcessor --profile lockidev --env-vars local-env.json",
     "default:region": "export AWS_DEFAULT_REGION=us-west-3",
     "deploy": "sam deploy --profile lockidev"
   },

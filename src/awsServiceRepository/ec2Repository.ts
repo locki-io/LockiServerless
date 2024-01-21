@@ -25,12 +25,10 @@ export class Ec2Repository {
       MinCount: params?.MinCount || 1,
       MaxCount: params?.MaxCount || 1,
       UserData: userDataEncoded,
+      SecurityGroupIds: params?.SecurityGroupIds || [],
     };
-    console.log('instanceParams', JSON.stringify(instanceParams));
 
     const runInstanceResponse = await this.ec2.runInstances(instanceParams).promise();
-    console.log('runInstanceResponse', JSON.stringify(runInstanceResponse));
-    console.log('runInstanceResponse?.$response', runInstanceResponse?.$response);
 
     return runInstanceResponse;
   }

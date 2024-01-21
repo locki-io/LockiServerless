@@ -137,7 +137,8 @@ Resources:
           TableName: "locki-users"
       Environment:
         Variables:
-          BLENDER_SCRIPTS_QUEUE: !GetAtt BlenderScriptsQueue.QueueUrl
+          BLENDER_PROCESSOR_INSTANCE_IMAGE_ID: ${ssm(eu-central-1):BLENDER_PROCESSOR_INSTANCE_IMAGE_ID}
+          BLENDER_PROCESSOR_INSTANCE_SG: ${ssm(eu-central-1):BLENDER_PROCESSOR_INSTANCE_SG}
       Events:
         MintBlenderSqsEvent:
           Type: SQS # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
