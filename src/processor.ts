@@ -1,11 +1,15 @@
-import { SQSEvent } from 'aws-lambda';
+import { SQSEvent, SQSRecord } from 'aws-lambda';
 import { blenderScriptsProcessor } from './repository/blenderScriptRepository';
 
 export const lambdaHandler = async (event: SQSEvent): Promise<void> => {
   try {
-    const message = event.Records && Array.isArray(event.Records) && event.Records.length > 0 ? event.Records[0] : {};
-    console.log('message', JSON.stringify(message));
-    await blenderScriptsProcessor();
+    const message: SQSRecord | Record<string, never> =
+      event.Records && Array.isArray(event.Records) && event.Records.length > 0 ? event.Records[0] : {};
+    let messageBody = {};
+    if (message?.body && typeof message.body === 'string') {
+      messageBody = JSON.parse(message.body);
+    }
+    await blenderScriptsProcessor(messageBody?.filename || '');
   } catch (error) {
     console.log('error', JSON.stringify(error));
   }

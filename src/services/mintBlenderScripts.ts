@@ -7,8 +7,8 @@ const sqsRepository = new SQSRepository(process.env.BLENDER_SCRIPTS_QUEUE || '')
 export const mintBlenderScripts = async (event: APIGatewayProxyEvent) => {
   const filename = event?.queryStringParameters?.filename || 'sample3dMesh';
   const s3UploadResponse = await s3Repository.uploadFileOnS3(event.body || '', filename);
-  // const s3UploadResponse = { Location: 'sample url' };
-  await sqsRepository.sendMessageToQueue(filename, { scriptUrl: s3UploadResponse?.Location });
+  await sqsRepository.sendMessageToQueue(filename, { scriptUrl: s3UploadResponse?.Location, filename });
+  // TODO: store the task in db and track the status.
   return {
     message: 'Successfully uploaded script to s3',
   };

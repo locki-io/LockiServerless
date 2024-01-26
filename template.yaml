@@ -100,8 +100,10 @@ Resources:
       - x86_64
       Policies:
         # Give Create/Read/Update/Delete Permissions to the SampleTable
-      - DynamoDBCrudPolicy:
-          TableName: "locki-users"
+      - SQSSendMessagePolicy:
+          QueueName: !GetAtt BlenderScriptsQueue.QueueName
+      - S3CrudPolicy:
+          BucketName: 'blender-scripts'
       Environment:
         Variables:
           BLENDER_SCRIPTS_QUEUE: !GetAtt BlenderScriptsQueue.QueueUrl
@@ -133,12 +135,16 @@ Resources:
       - x86_64
       Policies:
         # Give Create/Read/Update/Delete Permissions to the SampleTable
-      - DynamoDBCrudPolicy:
-          TableName: "locki-users"
+      - Version: '2012-10-17' 
+        Statement:
+          - Effect: Allow
+            Action:
+              - ec2:RunInstances
+            Resource: '*'
       Environment:
         Variables:
-          BLENDER_PROCESSOR_INSTANCE_IMAGE_ID: ${ssm(eu-central-1):BLENDER_PROCESSOR_INSTANCE_IMAGE_ID}
-          BLENDER_PROCESSOR_INSTANCE_SG: ${ssm(eu-central-1):BLENDER_PROCESSOR_INSTANCE_SG}
+          BLENDER_PROCESSOR_INSTANCE_IMAGE_ID: '{{resolve:ssm:BLENDER_PROCESSOR_INSTANCE_IMAGE_ID}}'
+          BLENDER_PROCESSOR_INSTANCE_SG: '{{resolve:ssm:BLENDER_PROCESSOR_INSTANCE_SG}}'
       Events:
         MintBlenderSqsEvent:
           Type: SQS # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
