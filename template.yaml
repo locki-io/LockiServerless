@@ -20,9 +20,9 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: src/
-      Handler: app.lambdaHandler
+      Handler: getNativeTokenHandler.lambdaHandler
       Runtime: nodejs18.x
-      MemorySize: 256
+      MemorySize: 512
       Architectures:
       - x86_64
       Policies:
@@ -47,18 +47,15 @@ Resources:
         Target: es2020
         Sourcemap: true
         EntryPoints:
-        - app.ts
-        External:
-        - "@aws-sdk/lib-dynamodb"
-        - "@aws-sdk/client-dynamodb"
+        - getNativeTokenHandler.ts
   
   GetDataNfts:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: src/
-      Handler: app.lambdaHandler
+      Handler: getDataNftsHandler.lambdaHandler
       Runtime: nodejs18.x
-      MemorySize: 256
+      MemorySize: 512
       Architectures:
       - x86_64
       Policies:
@@ -84,7 +81,7 @@ Resources:
         Target: es2020
         Sourcemap: true
         EntryPoints:
-        - app.ts
+        - getDataNftsHandler.ts
         External:
         - "@aws-sdk/lib-dynamodb"
         - "@aws-sdk/client-dynamodb"
@@ -93,7 +90,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: src/
-      Handler: app.lambdaHandler
+      Handler: mintBlenderScriptsHandler.lambdaHandler
       Runtime: nodejs18.x
       MemorySize: 512
       Architectures:
@@ -120,7 +117,42 @@ Resources:
         Target: es2020
         Sourcemap: true
         EntryPoints:
-        - app.ts
+        - mintBlenderScriptsHandler.ts
+        External:
+        - "@aws-sdk"
+  
+  MintDataNft:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: mintDataNftHandler.lambdaHandler
+      Runtime: nodejs18.x
+      MemorySize: 512
+      Architectures:
+      - x86_64
+      Policies:
+        # Give Create/Read/Update/Delete Permissions to the SampleTable
+      - SQSSendMessagePolicy:
+          QueueName: !GetAtt BlenderScriptsQueue.QueueName
+      - S3CrudPolicy:
+          BucketName: 'blender-scripts'
+      Environment:
+        Variables:
+          BLENDER_SCRIPTS_QUEUE: !GetAtt BlenderScriptsQueue.QueueUrl
+      Events:
+        mintDataNft:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /mintDataNft
+            Method: post
+    Metadata: # Manage esbuild properties
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: es2020
+        Sourcemap: true
+        EntryPoints:
+        - mintDataNftHandler.ts
         External:
         - "@aws-sdk"
   
@@ -141,6 +173,8 @@ Resources:
             Action:
               - ec2:RunInstances
             Resource: '*'
+      - S3CrudPolicy:
+          BucketName: 'blender-scripts'
       Environment:
         Variables:
           BLENDER_PROCESSOR_INSTANCE_IMAGE_ID: '{{resolve:ssm:BLENDER_PROCESSOR_INSTANCE_IMAGE_ID}}'

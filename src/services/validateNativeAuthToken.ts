@@ -4,6 +4,7 @@ import { NativeAuthServerConfig, NativeAuthServer } from '../nativeAuth';
 export const validateNativeAuthTokenService = async (event: APIGatewayProxyEvent) => {
   const { headers } = event;
   const nativeAuthToken = headers.Authorization;
+  console.log('nativeAuthToken', nativeAuthToken);
 
   if (nativeAuthToken) {
     const defaultConfig: NativeAuthServerConfig = {

@@ -1,22 +1,11 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { validateNativeAuthTokenService, getDataNftsService, mintBlenderScripts } from './services';
 
-export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+export const baseLambdaHandler = async (
+  lambdaHandler: (event: APIGatewayProxyEvent) => any,
+  event: APIGatewayProxyEvent,
+): Promise<APIGatewayProxyResult> => {
   try {
-    let response = {};
-    switch (event?.path) {
-      case '/identity':
-        response = await validateNativeAuthTokenService(event);
-        break;
-      case '/datanfts':
-        response = await getDataNftsService(event);
-        break;
-      case '/mintBlenderScripts':
-        response = await mintBlenderScripts(event);
-        break;
-      default:
-        break;
-    }
+    const response = await lambdaHandler(event);
 
     return {
       statusCode: 200,
