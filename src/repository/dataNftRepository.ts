@@ -1,8 +1,11 @@
 import axios from 'axios';
 import { NftType } from '@multiversx/sdk-dapp/types/tokens.types';
 import jsonData from '../ABIs/datanftmint.abi.json';
-import { AbiRegistry, BinaryCodec } from '@multiversx/sdk-core/out';
+import { AbiRegistry, BinaryCodec, Address } from '@multiversx/sdk-core/out';
 import { DataNftMetadataType } from '../types/dataNftTypes';
+import { sendTransactions } from '@multiversx/sdk-dapp/services';
+import { refreshAccount } from '@multiversx/sdk-dapp/utils/account';
+import { SftMinter, Transaction } from '@itheum/sdk-mx-data-nft';
 
 const json = JSON.parse(JSON.stringify(jsonData));
 const abiRegistry: AbiRegistry = AbiRegistry.create(json);
@@ -38,4 +41,63 @@ export function decodeNftAttributes(nft: NftType) {
   };
 
   return dataNFT;
+}
+
+export async function mintCustomDataNft(
+  chain: string,
+  address: string,
+  tokenName: string,
+  dataMarshalEndpoint: string,
+  dataStreamUrl: string,
+  dataPreviewUrl: string,
+  royalityPercentage: number,
+  title: string,
+  description: string,
+  nftStorageToken: string,
+) {
+  const dataNftMinter = new SftMinter(chain);
+  console.log('dataNftMinter');
+
+  try {
+    const requirements = await dataNftMinter.viewMinterRequirements(new Address(address));
+    console.log('requirements', JSON.stringify(requirements));
+    const antiSpamTax = requirements?.antiSpamTaxValue;
+    console.log('antiSpamTax', JSON.stringify(antiSpamTax));
+
+    const mintTransaction: Transaction = await dataNftMinter.mint(
+      new Address(address),
+      tokenName,
+      dataMarshalEndpoint,
+      dataStreamUrl,
+      dataPreviewUrl,
+      royalityPercentage * 100,
+      1,
+      title,
+      description,
+      antiSpamTax,
+      { nftStorageToken },
+    );
+    console.log('mintTransaction', JSON.stringify(mintTransaction));
+
+    await refreshAccount();
+
+    const { sessionId, error } = await sendTransactions({
+      transactions: mintTransaction,
+      transactionsDisplayInfo: {
+        processingMessage: 'Minting Standard Data NFT',
+        errorMessage: 'Data NFT minting error',
+        successMessage: 'Data NFT minted successfully',
+      },
+      redirectAfterSign: false,
+    });
+
+    return {
+      id: sessionId,
+      status: error ? 'error' : 'success',
+      msg: error ? error.message : 'Successfully minted Data NFT',
+    };
+  } catch (error: any) {
+    console.error('error', error);
+    return { id: null, status: 'error', msg: error.message };
+  }
 }

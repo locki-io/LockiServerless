@@ -138,7 +138,9 @@ Resources:
           BucketName: 'blender-scripts'
       Environment:
         Variables:
-          BLENDER_SCRIPTS_QUEUE: !GetAtt BlenderScriptsQueue.QueueUrl
+          CHAIN: "devnet"
+          CREATOR_ADDRESS: ""
+          NFT_STORAGE_TOKEN: ""
       Events:
         mintDataNft:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
