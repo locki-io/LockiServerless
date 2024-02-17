@@ -72,7 +72,7 @@ LockiServer$ sam local invoke HelloWorldFunction --event events/event.json
 The SAM CLI can also emulate your application's API. Use the `sam local start-api` to run the API locally on port 3000.
 
 ```bash
-LockiServer$ sam local start-api
+LockiServer$ sam local start-api // 2>&1 | tr "\r" "\n"
 LockiServer$ curl http://localhost:3000/
 ```
 

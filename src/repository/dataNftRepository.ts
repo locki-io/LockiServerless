@@ -1,11 +1,11 @@
 import axios from 'axios';
 import { NftType } from '@multiversx/sdk-dapp/types/tokens.types';
 import jsonData from '../ABIs/datanftmint.abi.json';
-import { AbiRegistry, BinaryCodec, Address } from '@multiversx/sdk-core/out';
+import { AbiRegistry, BinaryCodec, Address, Transaction } from '@multiversx/sdk-core/out';
 import { DataNftMetadataType } from '../types/dataNftTypes';
 import { sendTransactions } from '@multiversx/sdk-dapp/services';
 import { refreshAccount } from '@multiversx/sdk-dapp/utils/account';
-import { SftMinter, Transaction } from '@itheum/sdk-mx-data-nft';
+import { SftMinter } from '@itheum/sdk-mx-data-nft';
 
 const json = JSON.parse(JSON.stringify(jsonData));
 const abiRegistry: AbiRegistry = AbiRegistry.create(json);
@@ -56,13 +56,10 @@ export async function mintCustomDataNft(
   nftStorageToken: string,
 ) {
   const dataNftMinter = new SftMinter(chain);
-  console.log('dataNftMinter');
 
   try {
     const requirements = await dataNftMinter.viewMinterRequirements(new Address(address));
-    console.log('requirements', JSON.stringify(requirements));
     const antiSpamTax = requirements?.antiSpamTaxValue;
-    console.log('antiSpamTax', JSON.stringify(antiSpamTax));
 
     const mintTransaction: Transaction = await dataNftMinter.mint(
       new Address(address),
@@ -77,9 +74,9 @@ export async function mintCustomDataNft(
       antiSpamTax,
       { nftStorageToken },
     );
-    console.log('mintTransaction', JSON.stringify(mintTransaction));
 
     await refreshAccount();
+    console.log('mintTransaction', JSON.stringify(mintTransaction));
 
     const { sessionId, error } = await sendTransactions({
       transactions: mintTransaction,
@@ -90,6 +87,8 @@ export async function mintCustomDataNft(
       },
       redirectAfterSign: false,
     });
+    console.log('sessionId', sessionId);
+    console.log('error', error);
 
     return {
       id: sessionId,

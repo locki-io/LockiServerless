@@ -10,11 +10,11 @@ export const mintAsDataNft = async (event: APIGatewayProxyEvent) => {
     const mintTransactionResponse = await DataNftRepository.mintCustomDataNft(
       chain || 'devnet',
       CREATOR_ADDRESS,
-      'LOCKI_1001',
+      'LOCKI1001',
       DATA_MARSHALL_URL[chain || 'devnet'],
       dataStreamUrl,
       dataPreviewUrl,
-      1000,
+      10,
       title,
       description,
       NFT_STORAGE_TOKEN,
