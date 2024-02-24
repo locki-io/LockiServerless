@@ -86,11 +86,11 @@ Resources:
         - "@aws-sdk/lib-dynamodb"
         - "@aws-sdk/client-dynamodb"
   
-  MintBlenderScripts:
+  GeneratePreviewModel:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: src/
-      Handler: mintBlenderScriptsHandler.lambdaHandler
+      Handler: generatePreviewModelHandler.lambdaHandler
       Runtime: nodejs18.x
       MemorySize: 512
       Architectures:
@@ -98,17 +98,23 @@ Resources:
       Policies:
         # Give Create/Read/Update/Delete Permissions to the SampleTable
       - SQSSendMessagePolicy:
-          QueueName: !GetAtt BlenderScriptsQueue.QueueName
+          QueueName: !GetAtt ScriptsProcessingQueue.QueueName
       - S3CrudPolicy:
           BucketName: 'blender-scripts'
+      - S3CrudPolicy:
+          BucketName: 'dataassets.locki.io'
+      - DynamoDBCrudPolicy:
+          TableName: 'scripts-processing-history'
       Environment:
         Variables:
-          BLENDER_SCRIPTS_QUEUE: !GetAtt BlenderScriptsQueue.QueueUrl
+          SCRIPTS_PROCESSING_QUEUE: !GetAtt ScriptsProcessingQueue.QueueUrl
+          SCRIPTS_PROCESSING_BUCKET: '{{resolve:ssm:SCRIPTS_PROCESSING_BUCKET}}'
+          SCRIPTS_PROCESSING_HISTORY_TABLE: 'scripts-processing-history'
       Events:
         MintBlenderScripts:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
-            Path: /mintBlenderScripts
+            Path: /generatePreview
             Method: post
     Metadata: # Manage esbuild properties
       BuildMethod: esbuild
@@ -117,52 +123,15 @@ Resources:
         Target: es2020
         Sourcemap: true
         EntryPoints:
-        - mintBlenderScriptsHandler.ts
+        - generatePreviewModelHandler.ts
         External:
         - "@aws-sdk"
   
-  MintDataNft:
+  ScriptsProcessor:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: src/
-      Handler: mintDataNftHandler.lambdaHandler
-      Runtime: nodejs18.x
-      MemorySize: 512
-      Architectures:
-      - x86_64
-      Policies:
-        # Give Create/Read/Update/Delete Permissions to the SampleTable
-      - SQSSendMessagePolicy:
-          QueueName: !GetAtt BlenderScriptsQueue.QueueName
-      - S3CrudPolicy:
-          BucketName: 'blender-scripts'
-      Environment:
-        Variables:
-          CHAIN: "devnet"
-          CREATOR_ADDRESS: ""
-          NFT_STORAGE_TOKEN: ""
-      Events:
-        mintDataNft:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
-          Properties:
-            Path: /mintDataNft
-            Method: post
-    Metadata: # Manage esbuild properties
-      BuildMethod: esbuild
-      BuildProperties:
-        Minify: true
-        Target: es2020
-        Sourcemap: true
-        EntryPoints:
-        - mintDataNftHandler.ts
-        External:
-        - "@aws-sdk"
-  
-  BlenderScriptsProcessor:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: src/
-      Handler: processor.lambdaHandler
+      Handler: scriptsProcessor.lambdaHandler
       Runtime: nodejs18.x
       MemorySize: 512
       Architectures:
@@ -177,15 +146,22 @@ Resources:
             Resource: '*'
       - S3CrudPolicy:
           BucketName: 'blender-scripts'
+      - S3CrudPolicy:
+          BucketName: 'dataassets.locki.io'
+      - DynamoDBCrudPolicy:
+          TableName: 'scripts-processing-history'
       Environment:
         Variables:
           BLENDER_PROCESSOR_INSTANCE_IMAGE_ID: '{{resolve:ssm:BLENDER_PROCESSOR_INSTANCE_IMAGE_ID}}'
           BLENDER_PROCESSOR_INSTANCE_SG: '{{resolve:ssm:BLENDER_PROCESSOR_INSTANCE_SG}}'
+          SCRIPTS_PROCESSING_BUCKET: '{{resolve:ssm:SCRIPTS_PROCESSING_BUCKET}}'
+          SCRIPTS_PROCESSING_HISTORY_TABLE: 'scripts-processing-history'
+          SCRIPTS_PROCESSING_QUEUE: !GetAtt ScriptsProcessingQueue.QueueUrl
       Events:
         MintBlenderSqsEvent:
           Type: SQS # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
-            Queue: !GetAtt BlenderScriptsQueue.Arn
+            Queue: !GetAtt ScriptsProcessingQueue.Arn
             BatchSize: 1
     Metadata: # Manage esbuild properties
       BuildMethod: esbuild
@@ -194,7 +170,7 @@ Resources:
         Target: es2020
         Sourcemap: true
         EntryPoints:
-        - processor.ts
+        - scriptsProcessor.ts
         External:
         - "@aws-sdk"
   
@@ -227,8 +203,40 @@ Resources:
             ReadCapacityUnits: 2
             WriteCapacityUnits: 2
       TableName: "locki-users"
+
+  ScriptsProcessingHistory:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "id"
+          AttributeType: "N"
+        - AttributeName: "type"
+          AttributeType: "S"
+        - AttributeName: "filename"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "id"
+          KeyType: "HASH"
+        - AttributeName: "type"
+          KeyType: "RANGE"
+      ProvisionedThroughput:
+        ReadCapacityUnits: 2
+        WriteCapacityUnits: 2
+      GlobalSecondaryIndexes:
+        - IndexName: "filename_type_ix"
+          KeySchema:
+          - AttributeName: "filename"
+            KeyType: "HASH"
+          - AttributeName: "type"
+            KeyType: "RANGE"
+          Projection:
+            ProjectionType: "ALL"
+          ProvisionedThroughput:
+            ReadCapacityUnits: 2
+            WriteCapacityUnits: 2
+      TableName: "scripts-processing-history"
   
-  BlenderScriptsQueue:
+  ScriptsProcessingQueue:
     Type: AWS::SQS::Queue
     Properties:
       VisibilityTimeout: 120
@@ -250,9 +258,12 @@ Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
-  GetNativeTokenApi:
-    Description: API Gateway endpoint URL for Prod stage for Hello World function
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
   GetNativeTokenFunction:
-    Description: Hello World Lambda Function ARN
+    Description: Get Native Auth Token API
     Value: !GetAtt GetNativeToken.Arn
+  GetDataNftsFunction:
+    Description: Get Data Nfts for the current user based on the native auth token
+    Value: !GetAtt GetDataNfts.Arn
+  GeneratePreviewModalFunction:
+    Description: Generate Preview of the 3D modal from the script provided
+    Value: !GetAtt GeneratePreviewModel.Arn

@@ -1,3 +1,4 @@
+import { DynamoDBRepository } from '../awsServiceRepository';
 import { Ec2Repository } from '../awsServiceRepository/ec2Repository';
 import { replaceFilenameExtension } from '../utils/common';
 
@@ -6,9 +7,9 @@ const ec2Repository = new Ec2Repository(
   'blender-processor',
   'eu-west-3',
 );
+const dbClient = new DynamoDBRepository(process.env.SCRIPTS_PROCESSING_HISTORY_TABLE || '');
 
-export async function blenderScriptsProcessor(filename: string) {
-  console.log('process.env', JSON.stringify(process.env));
+export async function blenderScriptsProcessor(filename: string, processedId: number) {
   const commands = [
     `#!/bin/bash`,
     `sudo -u ec2-user -i <<'EOF'`,
@@ -29,9 +30,21 @@ export async function blenderScriptsProcessor(filename: string) {
     `rm -rf ${filename} ${replaceFilenameExtension(filename, 'glb')} latestOutput.blend`,
     `EOF`,
   ];
+
   const newInstanceResponse = await ec2Repository.createInstanceWithUserData({
     UserData: commands.join('\n'),
     SecurityGroupIds: [process.env.BLENDER_PROCESSOR_INSTANCE_SG || ''],
   });
   console.log('newInstanceResponse', newInstanceResponse?.Instances?.[0]?.InstanceId);
+
+  await dbClient.updateItem(
+    { id: processedId, type: 'blenderPythonScript' },
+    {
+      UpdateExpression: 'set processingStatus = :processingStatus, updatedAt = :updatedAt',
+      ExpressionAttributeValues: {
+        ':processingStatus': 'Processing',
+        ':updatedAt': new Date().toISOString(),
+      },
+    },
+  );
 }

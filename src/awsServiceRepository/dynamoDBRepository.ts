@@ -1,5 +1,5 @@
 import { DynamoDB } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocument, GetCommand, PutCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
+import { DynamoDBDocument, GetCommand, PutCommand, QueryCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 
 export class DynamoDBRepository {
   public readonly tableName: string;
@@ -51,5 +51,17 @@ export class DynamoDBRepository {
     };
 
     await this.ddbDocClient.send(new PutCommand(params));
+  }
+
+  async updateItem(key: any, options: any) {
+    console.log('key', key);
+    const params = {
+      TableName: this.tableName,
+      Key: key,
+      ...options,
+      ReturnValues: 'ALL_NEW',
+    };
+
+    await this.ddbDocClient.send(new UpdateCommand(params));
   }
 }
