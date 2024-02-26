@@ -1,5 +1,6 @@
 import { DynamoDBRepository } from '../awsServiceRepository';
 import { Ec2Repository } from '../awsServiceRepository/ec2Repository';
+import { sendMessageToConnection } from '../services/sendMessageToConnection';
 import { replaceFilenameExtension } from '../utils/common';
 
 const ec2Repository = new Ec2Repository(
@@ -47,4 +48,6 @@ export async function blenderScriptsProcessor(filename: string, processedId: num
       },
     },
   );
+
+  await sendMessageToConnection(JSON.stringify({ processedId, processingStatus: 'Processing' }));
 }

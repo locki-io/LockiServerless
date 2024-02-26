@@ -1,6 +1,7 @@
 import { SQSEvent, SQSRecord } from 'aws-lambda';
 import { BlenderScriptsProcessingRepository } from '../repository';
 import { DynamoDBRepository } from '../awsServiceRepository';
+import { sendMessageToConnection } from './sendMessageToConnection';
 
 const dbClient = new DynamoDBRepository(process.env.SCRIPTS_PROCESSING_HISTORY_TABLE || '');
 
@@ -22,6 +23,8 @@ export const scriptsProcessorService = async (event: SQSEvent) => {
       },
     },
   );
+
+  await sendMessageToConnection(JSON.stringify({ processedId: messageBody.processedId, processingStatus: 'Pending' }));
 
   switch (messageBody.type) {
     case 'blenderPythonScript':

@@ -144,12 +144,18 @@ Resources:
             Action:
               - ec2:RunInstances
             Resource: '*'
+          - Effect: Allow
+            Action:
+              - execute-api:ManageConnections
+            Resource: '*'
       - S3CrudPolicy:
           BucketName: 'blender-scripts'
       - S3CrudPolicy:
           BucketName: 'dataassets.locki.io'
       - DynamoDBCrudPolicy:
           TableName: 'scripts-processing-history'
+      - DynamoDBReadPolicy:
+          TableName: 'locki-socket-connection-history'
       Environment:
         Variables:
           BLENDER_PROCESSOR_INSTANCE_IMAGE_ID: '{{resolve:ssm:BLENDER_PROCESSOR_INSTANCE_IMAGE_ID}}'
@@ -157,6 +163,8 @@ Resources:
           SCRIPTS_PROCESSING_BUCKET: '{{resolve:ssm:SCRIPTS_PROCESSING_BUCKET}}'
           SCRIPTS_PROCESSING_HISTORY_TABLE: 'scripts-processing-history'
           SCRIPTS_PROCESSING_QUEUE: !GetAtt ScriptsProcessingQueue.QueueUrl
+          CONNECTION_TABLE_NAME: '{{resolve:ssm:CONNECTION_TABLE_NAME}}'
+          WEBSOCKET_ENDPOINT: '{{resolve:ssm:WEBSOCKET_ENDPOINT}}'
       Events:
         MintBlenderSqsEvent:
           Type: SQS # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
