@@ -10,7 +10,6 @@ export const scriptsProcessorService = async (event: SQSEvent) => {
     event.Records && Array.isArray(event.Records) && event.Records.length > 0 ? event.Records[0] : {};
   let messageBody = { filename: '', type: 'blenderPythonScript', processedId: 0, previewUrl: '' };
   if (message?.body && typeof message.body === 'string') {
-    console.log('message.body', typeof message.body, message.body);
     messageBody = JSON.parse(message.body);
   }
 
@@ -29,14 +28,12 @@ export const scriptsProcessorService = async (event: SQSEvent) => {
 
   switch (messageBody.type) {
     case 'blenderPythonScript':
-      console.log('blenderPythonScript', messageBody);
       await BlenderScriptsProcessingRepository.blenderScriptsProcessor(
         messageBody?.filename || '',
         messageBody.processedId,
       );
       break;
     case 'finishBlenderPythonScript':
-      console.log('finishBlenderPythonScript', messageBody);
       await BlenderScriptsProcessingRepository.finishBlenderScriptProcessor(
         messageBody.processedId,
         messageBody?.previewUrl || '',
