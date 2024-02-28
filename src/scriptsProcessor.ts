@@ -5,6 +5,6 @@ export const lambdaHandler = async (event: SQSEvent): Promise<void> => {
   try {
     await scriptsProcessorService(event);
   } catch (error) {
-    console.error('error', JSON.stringify(error));
+    console.error('error', error);
   }
 };

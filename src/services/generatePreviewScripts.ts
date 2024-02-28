@@ -8,7 +8,6 @@ const sqsRepository = new SQSRepository(process.env.SCRIPTS_PROCESSING_QUEUE || 
 
 export const generatePreviewScripts = async (event: APIGatewayProxyEvent) => {
   const processedId = Math.floor(new Date().valueOf() * Math.random());
-  console.log('process.env.SCRIPTS_PROCESSING_QUEUE inside', process.env.SCRIPTS_PROCESSING_QUEUE);
 
   const filename = (event?.queryStringParameters?.filename || 'sample3dMesh').replace('.py', '');
   const s3UploadResponse = await s3Repository.uploadFileOnS3(
