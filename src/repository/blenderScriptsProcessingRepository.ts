@@ -11,17 +11,6 @@ const ec2Repository = new Ec2Repository(
 const dbClient = new DynamoDBRepository(process.env.SCRIPTS_PROCESSING_HISTORY_TABLE || '');
 
 export async function blenderScriptsProcessor(filename: string, processedId: number) {
-  console.log(
-    'sqs-send-message',
-    `aws sqs send-message --queue-url ${process.env.SCRIPTS_PROCESSING_QUEUE} --message-body "${JSON.stringify({
-      previewUrl: `https://s3.eu-central-1.amazonaws.com/dataassets.locki.io/dataPreviews/${replaceFilenameExtension(
-        filename,
-        'glb',
-      )}`,
-      processedId,
-      type: 'finishBlenderPythonScript',
-    })}"`,
-  );
   const commands = [
     `#!/bin/bash`,
     `sudo -u ec2-user -i <<'EOF'`,
