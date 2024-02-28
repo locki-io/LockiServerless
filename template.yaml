@@ -156,6 +156,8 @@ Resources:
           TableName: 'scripts-processing-history'
       - DynamoDBReadPolicy:
           TableName: 'locki-socket-connection-history'
+      - SQSSendMessagePolicy:
+          QueueName: !GetAtt ScriptsProcessingQueue.QueueName
       Environment:
         Variables:
           BLENDER_PROCESSOR_INSTANCE_IMAGE_ID: '{{resolve:ssm:BLENDER_PROCESSOR_INSTANCE_IMAGE_ID}}'
