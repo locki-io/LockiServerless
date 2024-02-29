@@ -68,7 +68,7 @@ export class DynamoDBRepository {
       ReturnValues: 'ALL_NEW',
     };
 
-    await this.ddbDocClient.send(new UpdateCommand(params));
+    return await this.ddbDocClient.send(new UpdateCommand(params));
   }
 
   async scanCommand(options?: any) {

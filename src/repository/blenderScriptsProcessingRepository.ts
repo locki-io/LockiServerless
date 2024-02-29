@@ -59,7 +59,7 @@ export async function blenderScriptsProcessor(filename: string, processedId: num
 }
 
 export async function finishBlenderScriptProcessor(processedId: number, previewUrl: string) {
-  await dbClient.updateItem(
+  const latestProcessingData = await dbClient.updateItem(
     { id: processedId, type: 'blenderPythonScript' },
     {
       UpdateExpression: 'set processingStatus = :processingStatus, updatedAt = :updatedAt',
@@ -71,4 +71,8 @@ export async function finishBlenderScriptProcessor(processedId: number, previewU
   );
 
   await sendMessageToConnection(JSON.stringify({ processedId, processingStatus: 'Success', previewUrl }));
+
+  if (latestProcessingData?.Attributes?.instanceId) {
+    await ec2Repository.terminateInstance([latestProcessingData.Attributes.instanceId]);
+  }
 }

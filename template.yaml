@@ -143,6 +143,7 @@ Resources:
           - Effect: Allow
             Action:
               - ec2:RunInstances
+              - ec2:TerminateInstances
             Resource: '*'
           - Effect: Allow
             Action:
