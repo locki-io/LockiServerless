@@ -32,4 +32,11 @@ export class Ec2Repository {
 
     return runInstanceResponse;
   }
+
+  async terminateInstance(instanceIds: string[]) {
+    const params = {
+      InstanceIds: instanceIds,
+    };
+    await this.ec2.terminateInstances(params).promise();
+  }
 }

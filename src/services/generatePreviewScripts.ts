@@ -35,5 +35,6 @@ export const generatePreviewScripts = async (event: APIGatewayProxyEvent) => {
     message: 'Successfully uploaded the script and queued for processing',
     status: 'Queued',
     processedId,
+    scriptUrl: s3UploadResponse?.Location,
   };
 };

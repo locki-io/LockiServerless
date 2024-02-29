@@ -12,6 +12,7 @@ export const scriptsProcessorService = async (event: SQSEvent) => {
   if (message?.body && typeof message.body === 'string') {
     messageBody = JSON.parse(message.body);
   }
+  console.log('processing message', messageBody);
 
   await dbClient.updateItem(
     { id: messageBody.processedId, type: 'blenderPythonScript' },
