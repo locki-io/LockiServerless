@@ -25,10 +25,11 @@ export const scriptsProcessorService = async (event: SQSEvent) => {
     },
   );
 
-  await sendMessageToConnection(JSON.stringify({ processedId: messageBody.processedId, processingStatus: 'Pending' }));
-
   switch (messageBody.type) {
     case 'blenderPythonScript':
+      await sendMessageToConnection(
+        JSON.stringify({ processedId: messageBody.processedId, processingStatus: 'Pending' }),
+      );
       await BlenderScriptsProcessingRepository.blenderScriptsProcessor(
         messageBody?.filename || '',
         messageBody.processedId,
