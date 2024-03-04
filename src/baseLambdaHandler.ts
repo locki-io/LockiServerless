@@ -12,7 +12,7 @@ export const baseLambdaHandler = async (
       headers: {
         'Access-Control-Allow-Headers': 'Content-Type',
         'Access-Control-Allow-Origin': '*', // Allow from anywhere
-        'Access-Control-Allow-Methods': 'GET', // Allow only GET request
+        'Access-Control-Allow-Methods': '*', // Allow only GET request
       },
       body: JSON.stringify(response),
     };
@@ -23,7 +23,7 @@ export const baseLambdaHandler = async (
       headers: {
         'Access-Control-Allow-Headers': 'Content-Type',
         'Access-Control-Allow-Origin': '*', // Allow from anywhere
-        'Access-Control-Allow-Methods': 'GET', // Allow only GET request
+        'Access-Control-Allow-Methods': '*', // Allow only GET request
       },
       body: JSON.stringify({
         error: err?.message || 'some error happened',

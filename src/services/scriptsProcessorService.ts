@@ -75,6 +75,8 @@ export const scriptsProcessorService = async (event: SQSEvent) => {
 
   switch (messageBody.type) {
     case INPUT_OPTIONS.blenderPyInput:
+    case INPUT_OPTIONS.blenderPyFile:
+    case INPUT_OPTIONS.blendFile:
       await BlenderScriptsProcessingRepository.blenderScriptsProcessor(
         messageBody?.filename || '',
         messageBody.processedId,
