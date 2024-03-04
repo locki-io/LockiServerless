@@ -9,7 +9,7 @@ Description: >
 Globals:
   Api:
     Cors:
-      AllowMethods: "'GET,POST,OPTIONS'"
+      AllowMethods: "'GET,POST,PUT,OPTIONS'"
       AllowHeaders: "'*'"
       AllowOrigin: "'*'"  
   Function:
@@ -85,6 +85,41 @@ Resources:
         External:
         - "@aws-sdk/lib-dynamodb"
         - "@aws-sdk/client-dynamodb"
+  
+  GetScriptUploadLink:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: getScriptUploadLinkHandler.lambdaHandler
+      Runtime: nodejs18.x
+      MemorySize: 512
+      Architectures:
+      - x86_64
+      Policies:
+        # Give Create/Read/Update/Delete Permissions to the SampleTable
+      - S3CrudPolicy:
+          BucketName: 'dataassets.locki.io'
+      - DynamoDBCrudPolicy:
+          TableName: 'scripts-processing-history'
+      Environment:
+        Variables:
+          SCRIPTS_PROCESSING_BUCKET: '{{resolve:ssm:SCRIPTS_PROCESSING_BUCKET}}'
+      Events:
+        GetScriptUploadLinkApi:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /scriptUploadLink
+            Method: get
+    Metadata: # Manage esbuild properties
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: es2020
+        Sourcemap: true
+        EntryPoints:
+        - getScriptUploadLinkHandler.ts
+        External:
+        - "@aws-sdk"
   
   GeneratePreviewModel:
     Type: AWS::Serverless::Function

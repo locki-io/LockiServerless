@@ -8,7 +8,7 @@ export class S3Repository {
   constructor(bucketName: string) {
     this.bucketName = bucketName;
 
-    this.s3 = new aws.S3({ apiVersion: '2006-03-01', region: 'eu-west-3' });
+    this.s3 = new aws.S3({ apiVersion: '2006-03-01', region: 'eu-central-1' });
   }
 
   async uploadFileOnS3(fileData: string, key: string, fileName: string) {
@@ -23,6 +23,20 @@ export class S3Repository {
       return response;
     } catch (err) {
       console.log(err);
+    }
+  }
+
+  async getPreSignedUrl(key: string) {
+    const params = {
+      Bucket: this.bucketName,
+      Key: key,
+      Expires: 60,
+    };
+
+    try {
+      return await this.s3.getSignedUrlPromise('putObject', params);
+    } catch (error) {
+      console.error('error', error);
     }
   }
 }
