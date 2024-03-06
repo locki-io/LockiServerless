@@ -20,22 +20,22 @@ export const generateBlenderPythonScriptPreviewService = async (event: APIGatewa
     s3UploadResponse = await s3Repository.uploadFileOnS3(
       event.body || '',
       `processData/${processedId}`,
-      `${filename}_${processedId}.${filenameExtension}`,
+      `${filename}.${filenameExtension}`,
     );
   }
 
   await sqsRepository.sendMessageToQueue(filename, {
     scriptUrl: s3UploadResponse ? s3UploadResponse?.Location : event.body,
-    filename: `${filename}_${processedId}.${filenameExtension}`,
+    filename: `${filename}.${filenameExtension}`,
     processedId,
-    type: INPUT_OPTIONS.blenderPyInput,
+    type: inputOption,
     exportOption,
   });
 
   await dbClient.putCommand({
     id: processedId,
-    type: INPUT_OPTIONS.blenderPyInput,
-    filename: `${filename}_${processedId}.${filenameExtension}`,
+    type: inputOption,
+    filename: `${filename}.${filenameExtension}`,
     exportOption,
     processingStatus: 'Queued',
     createdAt: new Date().toISOString(),
