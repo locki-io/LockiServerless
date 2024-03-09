@@ -23,6 +23,7 @@
     "@itheum/sdk-mx-data-nft": "^2.1.4",
     "@multiversx/sdk-core": "^12.18.0",
     "@multiversx/sdk-dapp": "^2.22.1",
+    "@multiversx/sdk-native-auth-server": "^1.0.16",
     "@multiversx/sdk-wallet": "^4.2.0",
     "aws-sdk": "^2.1528.0",
     "aws-sdk-mock": "^5.9.0",

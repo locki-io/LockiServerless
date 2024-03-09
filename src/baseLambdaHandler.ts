@@ -10,7 +10,7 @@ export const baseLambdaHandler = async (
     return {
       statusCode: 200,
       headers: {
-        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Headers': '*',
         'Access-Control-Allow-Origin': '*', // Allow from anywhere
         'Access-Control-Allow-Methods': '*', // Allow only GET request
       },
@@ -21,7 +21,7 @@ export const baseLambdaHandler = async (
     return {
       statusCode: 500,
       headers: {
-        'Access-Control-Allow-Headers': 'Content-Type',
+        'Access-Control-Allow-Headers': '*',
         'Access-Control-Allow-Origin': '*', // Allow from anywhere
         'Access-Control-Allow-Methods': '*', // Allow only GET request
       },

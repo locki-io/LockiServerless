@@ -36,7 +36,14 @@ export class DynamoDBRepository {
     return data.Item;
   }
 
-  async queryByIndexCommand(indexName: string, indexKey: string, indexValue: any) {
+  async queryByIndexCommand(
+    indexName: string,
+    indexKey: string,
+    indexValue: any,
+    sortKey?: string,
+    sortKeyVal?: any,
+    sortKeyConditionExpression?: string,
+  ) {
     const params = {
       TableName: this.tableName,
       IndexName: indexName,
@@ -45,6 +52,15 @@ export class DynamoDBRepository {
         [`:${indexKey}`]: indexValue,
       },
     };
+    if (sortKey) {
+      params.ExpressionAttributeValues[`:${sortKey}`] = sortKeyVal;
+      if (sortKeyConditionExpression) {
+        params.KeyConditionExpression = `${params.KeyConditionExpression} AND ${sortKeyConditionExpression}`;
+      } else {
+        params.KeyConditionExpression = `${params.KeyConditionExpression} AND ${sortKey} = :${sortKey}`;
+      }
+    }
+    console.log('params', params);
 
     const data = await this.ddbDocClient.send(new QueryCommand(params));
     return data?.Items || [];

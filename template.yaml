@@ -145,6 +145,7 @@ Resources:
           SCRIPTS_PROCESSING_QUEUE: !GetAtt ScriptsProcessingQueue.QueueUrl
           SCRIPTS_PROCESSING_BUCKET: '{{resolve:ssm:SCRIPTS_PROCESSING_BUCKET}}'
           SCRIPTS_PROCESSING_HISTORY_TABLE: 'scripts-processing-history'
+          MUTLIVERSEX_API_URL: '{{resolve:ssm:MUTLIVERSEX_API_URL}}'
       Events:
         MintBlenderScripts:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
@@ -159,6 +160,74 @@ Resources:
         Sourcemap: true
         EntryPoints:
         - generatePreviewModelHandler.ts
+        External:
+        - "@aws-sdk"
+  
+  UpdateProcessStatus:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: updateProcessStatusHandler.lambdaHandler
+      Runtime: nodejs18.x
+      MemorySize: 512
+      Architectures:
+      - x86_64
+      Policies:
+        # Give Create/Read/Update/Delete Permissions to the SampleTable
+      - DynamoDBCrudPolicy:
+          TableName: 'scripts-processing-history'
+      Environment:
+        Variables:
+          SCRIPTS_PROCESSING_HISTORY_TABLE: 'scripts-processing-history'
+          MUTLIVERSEX_API_URL: '{{resolve:ssm:MUTLIVERSEX_API_URL}}'
+      Events:
+        UpdateProcessStatus:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /process/status
+            Method: put
+    Metadata: # Manage esbuild properties
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: es2020
+        Sourcemap: true
+        EntryPoints:
+        - updateProcessStatusHandler.ts
+        External:
+        - "@aws-sdk"
+  
+  GetPendingProcess:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: getPendingProcessHandler.lambdaHandler
+      Runtime: nodejs18.x
+      MemorySize: 512
+      Architectures:
+      - x86_64
+      Policies:
+        # Give Create/Read/Update/Delete Permissions to the SampleTable
+      - DynamoDBCrudPolicy:
+          TableName: 'scripts-processing-history'
+      Environment:
+        Variables:
+          SCRIPTS_PROCESSING_HISTORY_TABLE: 'scripts-processing-history'
+          MUTLIVERSEX_API_URL: '{{resolve:ssm:MUTLIVERSEX_API_URL}}'
+      Events:
+        GetPendingProcess:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /process/pending
+            Method: get
+    Metadata: # Manage esbuild properties
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: es2020
+        Sourcemap: true
+        EntryPoints:
+        - getPendingProcessHandler.ts
         External:
         - "@aws-sdk"
   
@@ -260,6 +329,10 @@ Resources:
           AttributeType: "S"
         - AttributeName: "filename"
           AttributeType: "S"
+        - AttributeName: "creatorAddress"
+          AttributeType: "S"
+        - AttributeName: "processingStatus"
+          AttributeType: "S"
       KeySchema:
         - AttributeName: "id"
           KeyType: "HASH"
@@ -274,6 +347,17 @@ Resources:
           - AttributeName: "filename"
             KeyType: "HASH"
           - AttributeName: "type"
+            KeyType: "RANGE"
+          Projection:
+            ProjectionType: "ALL"
+          ProvisionedThroughput:
+            ReadCapacityUnits: 2
+            WriteCapacityUnits: 2
+        - IndexName: "creatorAddress_processingStatus_ix"
+          KeySchema:
+          - AttributeName: "creatorAddress"
+            KeyType: "HASH"
+          - AttributeName: "processingStatus"
             KeyType: "RANGE"
           Projection:
             ProjectionType: "ALL"
