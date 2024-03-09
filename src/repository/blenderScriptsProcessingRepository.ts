@@ -28,12 +28,12 @@ export async function blenderScriptsProcessor(
     {
       UpdateExpression: 'set processingStatus = :processingStatus, updatedAt = :updatedAt, instanceId = :instanceId',
       ExpressionAttributeValues: {
-        ':processingStatus': 'Processing',
+        ':processingStatus': 'ProcessingProcessing',
         ':updatedAt': new Date().toISOString(),
         ':instanceId': newInstanceResponse?.Instances?.[0]?.InstanceId,
       },
     },
   );
 
-  await sendMessageToConnection(JSON.stringify({ processedId, processingStatus: 'Processing' }));
+  await sendMessageToConnection(JSON.stringify({ processedId, processingStatus: 'ProcessingProcessing' }));
 }

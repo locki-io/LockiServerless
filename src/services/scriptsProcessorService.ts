@@ -27,13 +27,13 @@ async function finishBlenderScriptProcessor(processedId: number, previewUrl: str
     {
       UpdateExpression: 'set processingStatus = :processingStatus, updatedAt = :updatedAt',
       ExpressionAttributeValues: {
-        ':processingStatus': 'Success',
+        ':processingStatus': 'ProcessingSuccess',
         ':updatedAt': new Date().toISOString(),
       },
     },
   );
 
-  await sendMessageToConnection(JSON.stringify({ processedId, processingStatus: 'Success', previewUrl }));
+  await sendMessageToConnection(JSON.stringify({ processedId, processingStatus: 'ProcessingSuccess', previewUrl }));
 
   if (latestProcessingData?.Attributes?.instanceId) {
     await ec2Repository.terminateInstance([latestProcessingData.Attributes.instanceId]);
@@ -65,13 +65,15 @@ export const scriptsProcessorService = async (event: SQSEvent) => {
     {
       UpdateExpression: 'set processingStatus = :processingStatus, updatedAt = :updatedAt',
       ExpressionAttributeValues: {
-        ':processingStatus': 'Pending',
+        ':processingStatus': 'ProcessingPending',
         ':updatedAt': new Date().toISOString(),
       },
     },
   );
 
-  await sendMessageToConnection(JSON.stringify({ processedId: messageBody.processedId, processingStatus: 'Pending' }));
+  await sendMessageToConnection(
+    JSON.stringify({ processedId: messageBody.processedId, processingStatus: 'ProcessingPending' }),
+  );
 
   switch (messageBody.type) {
     case INPUT_OPTIONS.blenderPyInput:
